@@ -53,10 +53,32 @@ fun MyApplicationTheme(
         else -> LightColorScheme
     }
 
+    /*
+    (!view.isInEditMode) -> Why it's used in Theme.kt
+
+    In your theme, this check is critical because certain operations—like modifying the status bar or
+    accessing the Activity window—only work on a real device.
+
+    Prevents Crashes: Android Studio's Preview doesn't have a real "Window" or "Activity" attached to it.
+    If you try to call (view.context as Activity).window during a preview without this check,
+    the IDE will throw a ClassCastException and your preview will break.
+
+    Skips Device-Specific Logic: It allows you to wrap "real-world" code (like changing system bar colors)
+    so that it only runs when the app is actually installed on a phone.
+    */
+
     val view = LocalView.current
 
     if (!view.isInEditMode) {
+
+        /*
+        In Jetpack Compose, a SideEffect is a specialized function used to "step outside" the
+        Compose world and interact with things the UI framework doesn't control (like the Android System,
+        a Bluetooth radio, or a Database).
+        * */
         SideEffect {
+            // This happens AFTER Compose finishes drawing the UI.
+            // It tells the Android System: "Now that the UI is ready, change the bar color."
             val window = (view.context as Activity).window
             window.statusBarColor = Color.Transparent.toArgb()
 
